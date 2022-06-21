@@ -22,24 +22,28 @@
 		login-processing-url="/processLogin"
 		username-parameter="id"
 		authentication-success-handler-ref="loginSuccessHandler"
-		default-target-url="/top.jsp" /> <!-- username 이 다르다면 위처럼 설정  -->
+		default-target-url="/top.jsp" /><!-- 핸들러가 있다면 타겟url은 적용안됨  --> <!-- username 이 다르다면 위처럼 설정  -->
 		<security:logout logout-url="/logout"  
 			logout-success-url="/top.jsp" /> <!-- 로그아웃 되면 바로 탑으로 고고  -->
+		
 		<security:access-denied-handler error-page="/accessDenied.jsp"/>
-		<security:csrf disabled="true" />
+		<security:csrf disabled="false" /> <!-- 사용할때는 false 안사용할때는 true -->
 	</security:http>
 	<security:authentication-manager>
-		<security:authentication-provider>
+		<security:authentication-provider user-service-ref="userServiceImpl">
+		<!-- loadUserByUsername가서 로그인 체크 할거임  -->
+			<security:password-encoder hash="bcrypt"/>
 <!-- 			<security:user-service>
 				<security:user name="user" password="{noop}1234"
 					authorities="ROLE_USER" />
 				<security:user name="admin" password="{noop}1234"
 					authorities="ROLE_ADMIN" /> DB연결 해야함 
 			</security:user-service> -->
-			<security:jdbc-user-service data-source-ref="dataSource"
-			users-by-username-query="select id,'{noop}' || password,1 from users where id = ?"
+			<!-- <security:jdbc-user-service data-source-ref="dataSource"
+			users-by-username-query="select id,password,1 from users where id = ?"
 			authorities-by-username-query=" select id, 'ROLE_'|| upper(role) from users where id = ?"
-			/>
+			/> -->
+			
 		</security:authentication-provider>
 	</security:authentication-manager>
 

@@ -7,16 +7,16 @@
 <title>Insert title here</title>
 </head>
 <body>
-  	<div class="container">
+	<div class="container">
 		<input name="targetDt" id="targetDt" value="20220619">
 		<button type="button" id="btnBoxOffice">검색</button>
 		<div id="divBoxOffice">
-			<div class="movie row" style="display : none">
+			<div class="movie row" style="display: none">
 				<div class="col-2">2</div>
 				<div class="col-10">범죄도시 2</div>
 			</div>
 		</div>
-		<div id="divMovieInfo" style="display:none">
+		<div id="divMovieInfo" style="display: none">
 			<div class="row">
 				<div class="col-2">런닝타임:</div>
 				<div class="col-10 showTm">104</div>
@@ -27,18 +27,89 @@
 			</div>
 			<div class="row">
 				<div class="col-2">actors:</div>
-				<div class="col-10"><div class="row actors">크리스 에반스,타이카 와이티티,피터 손</div></div>
+				<div class="col-10">
+					<div class="row actors">크리스 에반스,타이카 와이티티,피터 손</div>
+				</div>
 			</div>
 			<div class="row">
 				<div class="col-2">directors:</div>
-				<div class="col-10"><div class="row directors">앵거스 맥클레인</div></div>
+				<div class="col-10">
+					<div class="row directors">앵거스 맥클레인</div>
+				</div>
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript">
-	function(){
-		
-	}	
+	<script>
+	$(function(){
+		btnBoxOfficeHandler(); //박스 오피스 조회
+		movieInfoHandler(); //영화 상세정보
+	})
+	
+	function btnBoxOfficeHandler(){
+		$("#btnBoxOffice").on("click",function(){
+			//날짜값 입력  
+			let dt =$("#targetDt").val();
+			//날짜 값 조회
+			if(dt == ""){
+				alert("날짜 입력")
+				return;
+			}
+			var url='http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=f5eef3421c602c6cb7ea224104795888&targetDt='+dt;
+			$.ajax({
+				url:url,
+				method :'get',
+				dataType:'json',
+				success: boxOfficeCallBack
+			})
+		})
+	}
+	
+	function boxOfficeCallBack(result){ //이떄 result 는 위의 dataType의 json객체
+		let list =result.boxOfficeResult.dailyBoxOfficeList;
+		$("#divBoxOffice").empty();
+		for(mv of list){
+			$("<div>").addClass("movie row")
+					  .attr("data-moviecd",mv.movieCd)
+					  .append($("<div>").html(mv.rank).addClass("col-2"))
+					  .append($("<div>").html(mv.movieNm).addClass("col-10"))
+					  .appendTo("#divBoxOffice")
+		}
+	}
+	function movieInfoHandler(){
+		$("#divBoxOffice").on("click",".movie",function(){
+			var moviecd =$(this).data("moviecd");
+			let url ="http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=f5eef3421c602c6cb7ea224104795888&movieCd="+moviecd;
+			$.ajax({
+				url :url,
+				method : "get",
+				dataType :"json"
+			}).done(function(result){
+				$("#divMovieInfo").show();
+				let info =result.movieInfoResult.movieInfo;
+				let actors='';
+				for(actor of info.actors){
+					actors +=`<div class="col-3">${actor.peopleNm}</div>`;
+				}
+				let directors='';
+				for (director of info.directors){
+					directors +=`<div class="col-3">${director.peopleNm}</div>`;
+				}
+				
+				/* info.actor.forEach((ele,index)=>{
+					actors += `<div class="col-3">${ele.peopleNm}</div>`
+				}) */
+				
+				$(".showTm").html(info.showTm);
+				$(".openDt").html(info.openDt);
+				$(".actors").html(actors);
+				$(".directors").html(directors);
+			})
+			
+			
+			
+			
+		})
+	}
 	</script>
 
 </body>

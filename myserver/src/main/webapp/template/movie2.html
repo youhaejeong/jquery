@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!--영화제목 클릭하면 영화의 상세내용 출력-->
+  날짜<input id="targetDt">
+  <button type="button" id="btn">박스오피스 조회버튼</button>
+
+  <!--부모태그에 이벤트 걸기(그룹이벤트)-->
+  <div id="boxList"></div>
+  <div id="infoList"></div>
+
+  <script>
+    //콜백함수 dailyList 함수호출할 경우 이름만 입력 // 함수실행할 경우 함수이름()
+    //버튼 클릭
+    btn.addEventListener("click", dailyList); 
+    //btnInfo.addEventListener("click",moveInfo);
+    boxList.addEventListener("click",moveInfo);
+
+function moveInfo() {
+  //event.target = 이벤트 걸린 타겟(여기서는 div) // this와 target은 다르다
+  console.log(event.target);
+  console.log(this);
+  var code = event.target.getAttribute("data-cd");
+// XMLHttpRequest 객체의 생성
+var req = new XMLHttpRequest();
+var url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=f5eef3421c602c6cb7ea224104795888&movieCd="+code;
+// 비동기 방식으로 Request를 오픈한다
+req.open('GET', url, true);
+// Request를 전송한다
+req.send();
+
+// XMLHttpRequest.readyState 프로퍼티가 변경(이벤트 발생)될 때마다 콜백함수(이벤트 핸들러)를 호출한다.
+//onload 서버로부터 응답이 오면
+req.onload = function () {
+  //받아온 결과를 객체형태로 바꿔주고 
+  var obj = JSON.parse(this.responseText)
+  //영화감독의 이름을 출력
+  //객체 .   배열 인덱스값 붙익!!
+  var director = obj.movieInfoResult.movieInfo.directors[0].peopleNm;
+  var name = obj.movieInfoResult.movieInfo.movieNm;
+  console.log(name);
+  console.log(director);
+  infoList.innerHTML = name+director;
+  };
+ 
+}
+
+function dailyList() {
+var day = targetDt.value;
+// XMLHttpRequest 객체의 생성
+var req = new XMLHttpRequest();
+var url = "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=f5eef3421c602c6cb7ea224104795888&targetDt="+day;
+// 비동기 방식으로 Request를 오픈한다
+req.open('GET', url, true);
+// Request를 전송한다
+req.send();
+
+// XMLHttpRequest.readyState 프로퍼티가 변경(이벤트 발생)될 때마다 콜백함수(이벤트 핸들러)를 호출한다.
+//onload 서버로부터 응답이 오면
+req.onload = function () {
+  //받아온 결과를 객체형태로 바꿔주고 
+  var obj = JSON.parse(this.responseText)
+  // 이 함수는 Response가 클라이언트에 도달하면 호출된다.
+//var nm = obj.boxOfficeResult.dailyBoxOfficeList[0].movieNm; //list의 첫번째 영화이름
+//console.log(nm); 
+var list = obj.boxOfficeResult.dailyBoxOfficeList
+
+//버튼 클릭하면 계속 리스트가 뜨니까 div 안을 비워줌
+boxList.innerHTML = '';
+for(mv of list) {
+  console.log(mv.movieNm); 
+  //div에 출력
+  //boxList.innerHTML += '<br>' + mv.movieNm;
+  //` ` 사용
+  //boxList.innerHTML += `<div>${mv.movieNm}</div>`;
+  boxList.innerHTML += `<div class=info data-cd=${mv.movieCd}>${mv.movieNm}</div>`;
+}
+console.log(typeof this.responseText)
+
+//this = req.onload
+};
+}
+  </script>
+</body>
+</html>
