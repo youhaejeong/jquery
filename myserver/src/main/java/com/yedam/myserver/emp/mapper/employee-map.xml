@@ -44,7 +44,7 @@
 			<id column="department_id" property="department_id" />
 			<result column="DEPARTMENT_NAME" property="department_name" />
 			<result column="LOCATION_ID" property="location_id" />
-			<!-- <result column="MANAGER_ID" property="manager_id"/> -->
+			<result column="MANAGER_ID" property="manager_id"/> 
 		</association>
 	</resultMap>
 
@@ -102,6 +102,15 @@
 		FROM EMPLOYEES
 		WHERE DEPARTMENT_ID IS NOT NULL
 		GROUP BY DEPARTMENT_ID
+	</select>
+	
+	<select id="getDeptListMap" resultType="map">
+		select department_id AS "부서번호"
+			  ,department_name AS "부서명"
+			  ,manager_id AS "부서장"
+			  ,location_id AS "위치"
+		from departments
+		order by department_id
 	</select>
 
 </mapper>

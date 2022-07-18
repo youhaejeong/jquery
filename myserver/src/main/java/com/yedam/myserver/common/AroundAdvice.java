@@ -1,4 +1,4 @@
-package com.yedam.spring.common;
+package com.yedam.myserver.common;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.util.StopWatch;
